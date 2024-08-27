@@ -1,0 +1,5 @@
+data/protos/*
+data/StarRail.proto
+vendor/*
+b64.py
+composer.lock
