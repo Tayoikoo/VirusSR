@@ -3,3 +3,4 @@ data/StarRail.proto
 vendor/*
 b64.py
 composer.lock
+data/aStarRail.proto

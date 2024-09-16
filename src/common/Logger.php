@@ -61,6 +61,10 @@ class Logger
     {
         self::send($content, self::AQUA . "[GAMESERVER]");
     }
+    public static function log_packet(string $content): void
+    {
+        self::send($content, self::YELLOW . "[PACKET]");
+    }    
     public static function send(string $content, string $header): void
     {
         echo $header . " " . self::RESET . $content . self::RESET . PHP_EOL;

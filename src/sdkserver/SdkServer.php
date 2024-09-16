@@ -124,14 +124,20 @@ class SdkServer {
                 $rsp->setExResourceUrl($version_config->ex_resource_url);
                 $rsp->setLuaUrl($version_config->lua_url);
                 $rsp->setLuaVersion($version_config->lua_version);
-                $rsp->setFkenkkhlhhd(true);
-                $rsp->setOpgmnlinakc(true);
-                $rsp->setMbdacjejamf(true);
-                $rsp->setBgpcckkddmb(true);
-                $rsp->setKjadmknddjl(true);
-                $rsp->setGjaeghbeaio(true);
-                $rsp->setLamjdogmfam(true);
-                $rsp->setHafcipegpin(true);
+                $rsp->setNnglebkcmla(true);
+                $rsp->setApjecjmgakc(true);
+                $rsp->setNphdimjokni(true);
+                $rsp->setCnaklgmdlpe(true);
+                $rsp->setLaablmnklld(true);
+                $rsp->setOfjaknedmdm(true);
+                $rsp->setEbkbnekcohi(true);
+                $rsp->setUnk1(true);
+                $rsp->setUnk2(true);
+                $rsp->setUnk3(true);
+                $rsp->setUnk4(true);
+                $rsp->setUnk5(true);
+                $rsp->setUnk6(true);
+                $rsp->setUnk7(true);
                 $rsp->setUseTcp(true);
                 // $rsp->setUseTcp($server_config->gateserver_protocol == GatewayProtocolType::TCP);
 

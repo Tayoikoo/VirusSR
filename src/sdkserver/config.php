@@ -10,28 +10,24 @@ class Config {
     public $game_servers;
     public $versions;
 
-    // Static method to load and initialize the configuration
     public static function init_config() {
         $file_path = FolderConstants::ROOT_FOLDER . 'dispatch.json';
         return self::load_config($file_path, DEFAULT_CONFIG);
     }
 
     public static function load_config($file_path, $default_config) {
-        // Check if the configuration file exists, otherwise use default config
         if (file_exists($file_path)) {
             $data = file_get_contents($file_path);
         } else {
             $data = $default_config;
         }
 
-        // Decode JSON into an associative array
         $config = json_decode($data, true);
 
         if ($config === null) {
             throw new Exception("Failed to decode JSON config");
         }
 
-        // Map the configuration data to the DispatchServerConfiguration object
         $config_object = new self();
         $config_object->http_port = $config['http_port'];
         $config_object->game_servers = array_map(function($server) {
@@ -137,7 +133,16 @@ const DEFAULT_CONFIG = <<<JSON
 			"lua_version": "7852981",
 			"customMdkResVersion": 0,
 			"customIfixVersion": 0
-        }   
+        },
+		"OSBETAWin2.5.52": {
+			"asset_bundle_url": "https://autopatchos.starrails.com/asb/BetaLive/output_8023914_1c5d3bc509a7",
+			"ex_resource_url": "https://autopatchos.starrails.com/design_data/BetaLive/output_8023914_b27d1db5c7a4",
+			"lua_url": "https://autopatchos.starrails.com/lua/BetaLive/output_8023974_8a20ac590d04",
+			"ifixUrl": "",
+			"lua_version": "8023974",
+			"customMdkResVersion": 0,
+			"customIfixVersion": 0
+		}        
 	}
 }
 JSON;

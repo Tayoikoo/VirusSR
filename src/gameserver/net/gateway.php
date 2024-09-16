@@ -5,6 +5,7 @@ namespace VirusSR\gameserver\net;
 use React\Socket\SocketServer;
 use React\EventLoop\Loop;
 use React\Socket\ConnectionInterface;
+use Google\Protobuf\Internal\Message;
 use VirusSR\common\Logger;
 class Connection
 {
@@ -30,7 +31,6 @@ class Connection
         });
     }
 }
-
 class Gateway
 {
     private $host;
@@ -53,17 +53,27 @@ class Gateway
             $clientAddr = $connection->getRemoteAddress();
             Logger::log_gameserver("Accepted connection from $clientAddr");
 
-            $session = new PlayerSession($connection); // Pass allocator if necessary
+            $session = new PlayerSession($connection);
+
+            $this->registerHandlers($session);
+
             $session->run();
 
             $connection->on('close', function () use ($session) {
                 $session->stop();
             });
-                        
-            // $conn = new Connection($connection, $clientAddr, true);
-            // $conn->handle();
         });
 
         $loop->run();
+    }
+
+    private function registerHandlers(PlayerSession $session): void
+    {
+        $session->registerHandler('CmdPlayerGetTokenCsReq', function (ConnectionInterface $socket, Message $request) use ($session) {
+   
+            $handler = new \VirusSR\gameserver\net\handlers\OnPlayerGetToken($session);
+            $handler->handle($socket, $request);
+        });
+    
     }
 }
