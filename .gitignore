@@ -4,3 +4,5 @@ vendor/*
 b64.py
 composer.lock
 data/aStarRail.proto
+data/aaStarRail.proto
+data/oldStarRail.proto

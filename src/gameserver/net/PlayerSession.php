@@ -148,8 +148,11 @@ class PlayerSession
             return;
         }
     
+        
         $encoded = $data->serializeToString();
+        Logger::log_packet("Encoding: $encoded\n");
         $buffer = $this->encodePacket($cmdId, $encoded);
+        Logger::log_packet("Buffer: $buffer\n");
         $socket->write($buffer);
     }
     
@@ -157,8 +160,9 @@ class PlayerSession
     private static function getProto(string $cmdIdName): ?Message
     {
         $protoMap = [
-            'CmdPlayerGetTokenCsReq' => \PlayerGetTokenCsReq::class,
-            'CmdPlayerGetTokenScRsp' => \PlayerGetTokenScRsp::class,
+            // 'CmdPlayerGetTokenCsReq' => \PlayerGetTokenCsReq::class,
+            // 'CmdPlayerGetTokenScRsp' => \PlayerGetTokenScRsp::class,
+            // 'CmdPlayerLoginFinishCsReq' => \PlayerLoginFinishCsReq::class,
         ];
     
         if (isset($protoMap[$cmdIdName])) {

@@ -51,7 +51,7 @@ class Gateway
 
         $server->on('connection', function (ConnectionInterface $connection) {
             $clientAddr = $connection->getRemoteAddress();
-            Logger::log_gameserver("Accepted connection from $clientAddr");
+            Logger::log_gameserver("Accepted connection from {$clientAddr}");
 
             $session = new PlayerSession($connection);
 

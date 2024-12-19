@@ -29,5 +29,6 @@ class OnPlayerGetToken
 
         // Send the response packet using PlayerSession's method
         $this->session->sendPacket($socket, $cmdId, $response);
+        // $this->session->sendDummy($cmdId);
     }
 }

@@ -57,8 +57,9 @@ class SdkServer {
             }
         );
 
-        Logger::log_dispatch("Dispatch Server running at http://127.0.0.1:21000\n");
-        $httpServer->listen(new SocketServer('127.0.0.1:21000'));
+        $http_port = self::$config->http_port;
+        Logger::log_dispatch("Dispatch Server running at 0.0.0.0:$http_port\n");
+        $httpServer->listen(new SocketServer("0.0.0.0:$http_port"));
     }
 
     public static function registerRoutes(): void
@@ -71,17 +72,20 @@ class SdkServer {
             Logger::log_dispatch("Query params: " . json_encode($queryParams));            
             
             // Create the response object
-            $rsp = new GlobalDispatchData;
+            $rsp = new GlobalDispatchData();
             $rsp->setRetcode(0);
-            $rsp->setServerList(
-                [
-                    (new ServerData)
-                        ->setName('PHP-SR')
-                        ->setTitle('PHP-SR')
-                        ->setEnvType('2')
-                        ->setDispatchUrl('http://localhost:21000/query_gateway')
-                ]
-            );
+        
+            // Iterate over game servers from the config
+            $serverList = [];
+            foreach (self::$config->game_servers as $serverConfig) {
+                $server = new ServerData();
+                $server->setName($serverConfig->name);
+                $server->setTitle($serverConfig->title);
+                $server->setEnvType($serverConfig->env_type);
+                $server->setDispatchUrl($serverConfig->dispatch_url);
+                $serverList[] = $server;
+            }
+            $rsp->setServerList($serverList);
             
             // Serialize and base64 encode the response
             $serializedResponse = $rsp->serializeToString();
@@ -98,62 +102,68 @@ class SdkServer {
         };
 
         // query_gateway
-        self::$routes['/query_gateway'] = function (
-            ServerRequestInterface $request
-        ) {
-            Logger::log_dispatch('Received /query_gateway request.');
-            $queryParams = $request->getQueryParams();
-            $version = $queryParams['version'] ?? null;
-            Logger::log_dispatch("Version: $version");
-        
-            if (!$version) {
-                return new Response(400, ["Content-Type" => "application/json"], json_encode(['error' => 'Missing version']));
-            }
-        
-                       
-            $version_config = self::$config->versions[$version] ?? null;
+        foreach (self::$config->game_servers as $regionName => $serverConfig) {
+            self::$routes["/query_gateway/{$regionName}"] = function (ServerRequestInterface $request) use ($regionName, $serverConfig) {
+                Logger::log_dispatch('Received /query_gateway request.');
+                $queryParams = $request->getQueryParams();
+                Logger::log_dispatch("Query params: " . json_encode($queryParams));
+                
+                $version = $queryParams['version'] ?? null;
+                Logger::log_dispatch("Version: $version");
+                Logger::log_dispatch("Region: $regionName");
+                
+                if (!$version) {
+                    return new Response(400, ["Content-Type" => "application/json"], json_encode(['error' => 'Missing version']));
+                }
+                
+                // Check for the version configuration
+                $versionConfig = self::$config->versions[$version] ?? null;
+                Logger::log_dispatch("Version config: " . json_encode($versionConfig));
+                
+                if ($serverConfig) {
+                    if ($versionConfig) {
+                        // Prepare the Gateserver response
+                        $rsp = new Gateserver();
+                        $rsp->setIp($serverConfig->gateserver_ip);
+                        $rsp->setPort($serverConfig->gateserver_port);
+                        $rsp->setAssetBundleUrl($versionConfig->asset_bundle_url);
+                        $rsp->setExResourceUrl($versionConfig->ex_resource_url);
+                        $rsp->setLuaUrl($versionConfig->lua_url);
+                        $rsp->setLuaVersion($versionConfig->lua_version);
+                        $rsp->setIfixUrl($versionConfig->ifixUrl);
+                        $rsp->setUseTcp(true);
+                        $rsp->setUnk1(true);
+                        $rsp->setUnk2(true);
+                        $rsp->setUnk3(true);
+                        $rsp->setUnk4(true);
+                        $rsp->setUnk5(true);
+                        $rsp->setUnk6(true);
+                        $rsp->setUnk9(true);
+                        $rsp->setUnk10(true);
+                        $rsp->setUnk11(true);
+                        $rsp->setUnk12(true);
+                        $rsp->setUnk13(true);
+                        $rsp->setUnk14(true);
+                        $rsp->setUnk15(true);
+                    } else {
+                        $rsp = new Gateserver();
+                        $rsp->setRetcode(9);
+                        $rsp->setMsg("Forbidden version: $version");
+                        Logger::log_dispatch("Forbidden version: $version");
+                    }
+                } else {
+                    return new Response(404, ["Content-Type" => "application/json"], json_encode(['error' => 'Region not found']));
+                }
 
-            Logger::log_dispatch("Version config: " . json_encode($version_config));       
+                // Return the response, serialized and base64 encoded
+                return new Response(
+                    200,
+                    ["Content-Type" => "application/json"],
+                    base64_encode($rsp->serializeToString())
+                );
+            };
+        }
 
-            if ($version_config) {
-                // Prepare Gateserver response
-                $rsp = new Gateserver();
-                $rsp->setIp("127.0.0.1");
-                $rsp->setPort(23301);
-                $rsp->setAssetBundleUrl($version_config->asset_bundle_url);
-                $rsp->setExResourceUrl($version_config->ex_resource_url);
-                $rsp->setLuaUrl($version_config->lua_url);
-                $rsp->setLuaVersion($version_config->lua_version);
-                $rsp->setNnglebkcmla(true);
-                $rsp->setApjecjmgakc(true);
-                $rsp->setNphdimjokni(true);
-                $rsp->setCnaklgmdlpe(true);
-                $rsp->setLaablmnklld(true);
-                $rsp->setOfjaknedmdm(true);
-                $rsp->setEbkbnekcohi(true);
-                $rsp->setUnk1(true);
-                $rsp->setUnk2(true);
-                $rsp->setUnk3(true);
-                $rsp->setUnk4(true);
-                $rsp->setUnk5(true);
-                $rsp->setUnk6(true);
-                $rsp->setUnk7(true);
-                $rsp->setUseTcp(true);
-                // $rsp->setUseTcp($server_config->gateserver_protocol == GatewayProtocolType::TCP);
-
-            } else {
-                $rsp = new Gateserver();
-                $rsp->setRetcode(9);
-                $rsp->setMsg("forbidden version: $version");
-                Logger::log_dispatch("forbidden version: $version");
-            }
-        
-            return new Response(
-                200,
-                ["Content-Type" => "application/json"],
-                base64_encode($rsp->serializeToString())
-            );
-        };   
         
         // risky_api_check
         self::$routes["/account/risky/api/check"] = function (

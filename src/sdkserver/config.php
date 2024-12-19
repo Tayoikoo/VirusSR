@@ -3,6 +3,7 @@
 namespace VirusSR\sdkserver;
 
 use Exception;
+use VirusSR\common\Logger;
 use VirusSR\FolderConstants;
 
 class Config {
@@ -11,15 +12,16 @@ class Config {
     public $versions;
 
     public static function init_config() {
-        $file_path = FolderConstants::ROOT_FOLDER . 'dispatch.json';
-        return self::load_config($file_path, DEFAULT_CONFIG);
+        $file_path = FolderConstants::getRootFolder() . 'dispatch.json';
+        return self::load_config($file_path);
     }
 
-    public static function load_config($file_path, $default_config) {
+    public static function load_config($file_path) {
         if (file_exists($file_path)) {
+            Logger::log_dispatch('Found Dispatch.json');
             $data = file_get_contents($file_path);
         } else {
-            $data = $default_config;
+            return Logger::error("Dispatch.json not found");
         }
 
         $config = json_decode($data, true);
@@ -66,12 +68,14 @@ class VersionConfig {
     public $ex_resource_url;
     public $lua_url;
     public $lua_version;
+    public $ifixUrl;
 
     public function __construct($config) {
         $this->asset_bundle_url = $config['asset_bundle_url'];
         $this->ex_resource_url = $config['ex_resource_url'];
         $this->lua_url = $config['lua_url'];
         $this->lua_version = $config['lua_version'];
+        $this->ifixUrl = $config['ifixUrl'];
     }
 }
 
@@ -90,59 +94,3 @@ class GatewayProtocolType {
         }
     }
 }
-
-// Use this constant to load default configuration
-const DEFAULT_CONFIG = <<<JSON
-{
-	"http_port": 21041,
-	"game_servers": {
-		"php_sr": {
-			"name": "PHP-SR",
-			"title": "PHP-SR",
-			"dispatch_url": "http://127.0.0.1:21041/query_gateway",
-			"env_type": "2",
-			"gateserver_ip": "127.0.0.1",
-			"gateserver_port": 23301,
-			"gateserver_protocol": "Tcp"
-		}
-	},
-	"versions": {
-		"CNBETAWin2.4.53": {
-			"asset_bundle_url": "https://autopatchcn.bhsr.com/asb/BetaLive/output_7758621_8ca8f85844d6",
-			"ex_resource_url": "https://autopatchcn.bhsr.com/design_data/BetaLive/output_7774270_845f112075c7",
-			"lua_url": "https://autopatchcn.bhsr.com/lua/BetaLive/output_7758773_990fec29651b",
-			"ifixUrl": "https://autopatchcn.bhsr.com/ifix/BetaLive/output_0_40d2ce0253",
-			"lua_version": "7758773",
-			"customMdkResVersion": 0,
-			"customIfixVersion": 0
-		},
-		"CNBETAWin2.4.55": {
-			"asset_bundle_url": "https://autopatchcn.bhsr.com/asb/BetaLive/output_7852702_3da63958007e",
-			"ex_resource_url": "https://autopatchcn.bhsr.com/design_data/BetaLive/output_7857075_9f5efd1b38f2",
-			"lua_url": "https://autopatchcn.bhsr.com/lua/BetaLive/output_7852981_757d6a2b7feb",
-			"ifixUrl": "https://autopatchcn.bhsr.com/ifix/BetaLive/output_0_40d2ce0253",
-			"lua_version": "7852981",
-			"customMdkResVersion": 0,
-			"customIfixVersion": 0
-		},
-        "CNBETAAndroid2.4.55": {
-			"asset_bundle_url": "https://autopatchcn.bhsr.com/asb/BetaLive/output_7852702_3da63958007e",
-			"ex_resource_url": "https://autopatchcn.bhsr.com/design_data/BetaLive/output_7857075_9f5efd1b38f2",
-			"lua_url": "https://autopatchcn.bhsr.com/lua/BetaLive/output_7852981_757d6a2b7feb",
-			"ifixUrl": "https://autopatchcn.bhsr.com/ifix/BetaLive/output_0_40d2ce0253",
-			"lua_version": "7852981",
-			"customMdkResVersion": 0,
-			"customIfixVersion": 0
-        },
-		"OSBETAWin2.5.52": {
-			"asset_bundle_url": "https://autopatchos.starrails.com/asb/BetaLive/output_8023914_1c5d3bc509a7",
-			"ex_resource_url": "https://autopatchos.starrails.com/design_data/BetaLive/output_8023914_b27d1db5c7a4",
-			"lua_url": "https://autopatchos.starrails.com/lua/BetaLive/output_8023974_8a20ac590d04",
-			"ifixUrl": "",
-			"lua_version": "8023974",
-			"customMdkResVersion": 0,
-			"customIfixVersion": 0
-		}        
-	}
-}
-JSON;
