@@ -2,174 +2,228 @@
 
 namespace VirusSR\gameserver\net;
 
-use VirusSR\common\Logger;
-use VirusSR\FolderConstants;
 use React\Socket\ConnectionInterface;
 use Google\Protobuf\Internal\Message;
+use VirusSR\common\Logger;
+use VirusSR\gameserver\net\handlers\HandlerInterface;
 use VirusSR\gameserver\net\handlers;
+
+class NetPacket
+{
+    const HEAD_MAGIC = 0x9D74C714;
+    const TAIL_MAGIC = 0xD7A152C8;
+
+    public $cmd_type;
+    public $head;
+    public $body;
+
+    public function __construct($cmd_type, $head, $body)
+    {
+        $this->cmd_type = $cmd_type;
+        $this->head = $head;
+        $this->body = $body;
+    }
+
+    /**
+     * Convert the NetPacket into binary data to be sent over the network.
+     *
+     * @return string The binary packet.
+     */
+    public static function toBytes(NetPacket $packet): string
+    {
+        $out = '';
+        $out .= pack('N', self::HEAD_MAGIC);  // Header magic
+        $out .= pack('n', $packet->cmd_type);  // Command type (2 bytes)
+        $out .= pack('n', strlen($packet->head));  // Head length (2 bytes)
+        $out .= pack('N', strlen($packet->body));  // Body length (4 bytes)
+        $out .= $packet->head;  // Head data
+        $out .= $packet->body;  // Body data
+        $out .= pack('N', self::TAIL_MAGIC);  // Tail magic
+        return $out;
+    }
+
+    /**
+     * Read and parse a NetPacket from the incoming data stream.
+     *
+     * @param string $data The incoming binary data.
+     * @return NetPacket The parsed NetPacket object.
+     */
+    public static function fromBytes($data): ?NetPacket
+    {
+        // Ensure the data starts with the correct header magic
+        $head_magic = unpack('N', substr($data, 0, 4))[1];
+        if ($head_magic !== self::HEAD_MAGIC) {
+            Logger::log_gameserver("Invalid HEAD_MAGIC");
+            return null;
+        }
+
+        // Read command type
+        $cmd_type = unpack('n', substr($data, 4, 2))[1];
+
+        // Read head and body lengths
+        $head_length = unpack('n', substr($data, 6, 2))[1];
+        $body_length = unpack('N', substr($data, 8, 4))[1];
+
+        // Read the head and body data
+        $head = substr($data, 12, $head_length);
+        $body = substr($data, 12 + $head_length, $body_length);
+
+        // Ensure the data ends with the correct tail magic
+        $tail_magic = unpack('N', substr($data, 12 + $head_length + $body_length, 4))[1];
+        if ($tail_magic !== self::TAIL_MAGIC) {
+            Logger::log_gameserver("Invalid TAIL_MAGIC");
+            return null;
+        }
+
+        // Return a new NetPacket object
+        return new NetPacket($cmd_type, $head, $body);
+    }
+}
 
 class PlayerSession
 {
-    private $clientSocket;
-    private $playerInfo;
-    private $context;
-    private $running;
-    private static $cmdIdMap = [];
+    private $connection;
     private $handlers = [];
 
-    public function __construct(ConnectionInterface $clientSocket)
+    public function __construct(ConnectionInterface $connection)
     {
-        $this->clientSocket = $clientSocket;
-        $this->running = true;
+        $this->connection = $connection;
+        $this->initializeHandlers();
     }
 
-    public function run(): void
+    /**
+     * Initializes the available command handlers.
+     */
+    private function initializeHandlers()
     {
-        $this->clientSocket->on('data', function ($data) {
-            $this->onMessage($data);
-        });
+        $this->handlers = [
+            'CmdPlayerGetTokenCsReq' => new handlers\OnPlayerGetToken($this),
+        ];
     }
 
-    private function onMessage($data): void
+    /**
+     * Processes the incoming data and routes it to the appropriate handler.
+     *
+     * @param string $data The incoming data from the client.
+     */
+    public function processRequest($data)
     {
-        try {
-            Logger::log_gameserver("Processing data: " . bin2hex($data));
-            $packet = $this->decodePacket($data);
-            $cmdIdName = $this->getCommandNameFromId($packet['cmdId']);
+        // Parse the data into a NetPacket object
+        $packet = NetPacket::fromBytes($data);
     
-            if ($cmdIdName !== null) {
-                Logger::log_gameserver("Received command: $cmdIdName");
-                $proto = self::getProto($cmdIdName);
-                if ($proto !== null) {
-                    try {
-                        $proto->mergeFromString($packet['body']);
-                    } catch (\Exception $e) {
-                        Logger::log_gameserver("Error parsing protobuf message: " . $e->getMessage());
-                    }
+        if ($packet === null) {
+            Logger::log_gameserver("Failed to parse packet.");
+            return;
+        }
     
-                    if (isset($this->handlers[$cmdIdName])) {
-                        $handler = $this->handlers[$cmdIdName];
-                        if (is_callable($handler)) {
-                            call_user_func($handler, $this->clientSocket, $proto);
-                        } else {
-                            Logger::log_gameserver("Handler for $cmdIdName is not callable.");
-                        }
-                    } else {
-                        Logger::log_gameserver("No handler found for command: $cmdIdName");
-                    }
-                } else {
-                    Logger::log_gameserver("No Proto found for command: $cmdIdName");
-                }
+        // Extract the command from the packet
+        $command = $this->extractCommand($packet);
+    
+        // Handle the command if a handler exists
+        if (isset($this->handlers[$command])) {
+            $handler = $this->handlers[$command];
+    
+            // Decode the body of the NetPacket into the appropriate Protobuf message
+            $protobufMessage = $this->decodeProtobufMessage($packet);
+    
+            // Pass the Protobuf message to the handler
+            if ($protobufMessage !== null) {
+                $handler->handle($this->connection, $protobufMessage);
             } else {
-                Logger::log_gameserver("Command ID not found: {$packet['cmdId']}");
+                Logger::log_gameserver("Failed to decode Protobuf message.");
             }
-        } catch (\Exception $e) {
-            Logger::log_gameserver("Error handling data from socket: " . $e->getMessage());
-        }
-    }
- 
-    public function stop(): void
-    {
-        $this->running = false;
-        $clientAddr = $this->clientSocket->getRemoteAddress();
-        Logger::log_gameserver("Session stopped for {$clientAddr}");
-    }
-
-    public function registerHandler(string $cmdName, callable $handler): void
-    {
-        $this->handlers[$cmdName] = $handler;
-    }
-
-    private function decodePacket(string $buf): array
-    {
-        $cmdId = unpack('n', substr($buf, 4, 2))[1];
-        $headLen = unpack('n', substr($buf, 6, 2))[1];
-        $bodyLen = unpack('N', substr($buf, 8, 4))[1];
-        $body = substr($buf, 12 + $headLen, $bodyLen);
-        return ['body' => $body, 'cmdId' => $cmdId];
-    }
-
-    public static function loadCmdIdMap(): void
-    {
-        $jsonFilePath = FolderConstants::DATA_FOLDER . '/cmd_id.json';
-        if (!file_exists($jsonFilePath)) {
-            Logger::log_gameserver("Command ID JSON file not found.");
-            return;
-        }
-        $jsonContent = file_get_contents($jsonFilePath);
-        $parsedData = json_decode($jsonContent, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
-            self::$cmdIdMap = $parsedData;
-            Logger::log_gameserver("Loaded command ID map from JSON");
         } else {
-            Logger::log_gameserver("Failed to parse command ID JSON: " . json_last_error_msg());
+            Logger::log_gameserver("No handler found for command: {$command}");
         }
     }
-
-    public function sendDummy(int $cmdType): void
-    {
-        $this->clientSocket->write(pack('n', $cmdType));
-    }
-
-    public function encodePacket(int $cmdId, string $data): string
-    {
-        $bufferLength = 12 + strlen($data) + 4;
-        $buffer = pack('NnN', 0x9D74C714, $cmdId, 0);
-        $buffer .= pack('N', strlen($data));
-        $buffer .= $data;
-        $buffer .= pack('N', 0xd7a152c8);
-        return $buffer;
-    }
-
-    public function getCommandIdFromName(string $commandName): ?int
-    {
-        $cmdId = array_search($commandName, self::$cmdIdMap, true);
-        return $cmdId !== false ? $cmdId : null;
-    }
     
-    public function getCommandNameFromId(int $cmdId): ?string
+    private function decodeProtobufMessage(NetPacket $packet)
     {
-        return self::$cmdIdMap[$cmdId] ?? null;
-    }
-
-    public function sendPacket(ConnectionInterface $socket, int $cmdId, Message $data): void
-    {
-        $commandName = $this->getCommandNameFromId($cmdId);
-        if ($commandName === null) {
-            Logger::log_packet("Couldn't find command name for cmdId: $cmdId\n");
-            return;
+        // Check the cmd_type and decode the body into the correct Protobuf message
+        switch ($packet->cmd_type) {
+            case cmd_id::CMD_PLAYER_GET_TOKEN_CS_REQ:
+                $message = new \PlayerGetTokenCsReq();
+                $message->mergeFromString($packet->body);  // Assuming the body contains the serialized Protobuf message
+                return $message;
+            // Add other cases for different cmd_types here
+            default:
+                Logger::log_gameserver("No Protobuf message class found for cmd_type: {$packet->cmd_type}");
+                return null;
         }
-    
-        Logger::log_packet("Sending $commandName\n");
-    
-        $proto = self::getProto($commandName);
-        if ($proto === null) {
-            Logger::log_packet("Couldn't find proto for $commandName\n");
-            return;
-        }
-    
-        
-        $encoded = $data->serializeToString();
-        Logger::log_packet("Encoding: $encoded\n");
-        $buffer = $this->encodePacket($cmdId, $encoded);
-        Logger::log_packet("Buffer: $buffer\n");
-        $socket->write($buffer);
     }
     
-
-    private static function getProto(string $cmdIdName): ?Message
+    /**
+     * Extracts the command from the NetPacket.
+     *
+     * @param NetPacket $packet The parsed packet.
+     * @return string The extracted command.
+     */
+    private function extractCommand(NetPacket $packet)
     {
-        $protoMap = [
-            // 'CmdPlayerGetTokenCsReq' => \PlayerGetTokenCsReq::class,
-            // 'CmdPlayerGetTokenScRsp' => \PlayerGetTokenScRsp::class,
-            // 'CmdPlayerLoginFinishCsReq' => \PlayerLoginFinishCsReq::class,
+        // Map cmd_type to command names using constants from cmd_id
+        $commandMap = [
+            cmd_id::CMD_PLAYER_GET_TOKEN_CS_REQ => 'CmdPlayerGetTokenCsReq',
+            cmd_id::CMD_PLAYER_LOGIN_CS_REQ => 'CmdPlayerLoginCsReq',
+            // Add more mappings as necessary
         ];
     
-        if (isset($protoMap[$cmdIdName])) {
-            $protoClass = $protoMap[$cmdIdName];
-            return new $protoClass();
+        // Check if the cmd_type exists in the map
+        if (array_key_exists($packet->cmd_type, $commandMap)) {
+            return $commandMap[$packet->cmd_type];  // Return the corresponding command name
+        } else {
+            Logger::log_gameserver("No command found for cmd_type: {$packet->cmd_type}");
+            return null;  // Default command when no match is found
         }
+    }
     
-        return null;
+
+    /**
+     * Sends a packet over the connection.
+     *
+     * @param ConnectionInterface $socket The connection to send the packet over.
+     * @param int $cmdId The command ID.
+     * @param Message $response The Protobuf response message.
+     * @return void
+     */
+    public function sendPacket(ConnectionInterface $socket, $cmdId, Message $response)
+    {
+        // Create a NetPacket
+        $packet = new NetPacket($cmdId, [], $response->serializeToString());  // Correct instantiation of NetPacket
+    
+        // Send the packet (including header and body)
+        $packetBytes = $this->encodeNetPacket($packet);
+        $socket->write($packetBytes);
+    
+        Logger::log_gameserver("Sent packet with cmdId {$cmdId}.");
+    }
+
+    /**
+     * Encodes the NetPacket to bytes.
+     *
+     * @param NetPacket $packet The NetPacket to encode.
+     * @return string The encoded packet.
+     */
+    private function encodeNetPacket(NetPacket $packet)
+    {
+        // Construct the packet bytes with the header and body
+        $out = '';
+        $out .= pack('N', 0x9D74C714);  // HEAD_MAGIC (u32)
+        $out .= pack('n', $packet->cmd_type);  // cmd_type (u16)
+        $out .= pack('n', count($packet->head));  // head length (u16)
+        $out .= pack('N', strlen($packet->body));  // body length (u32)
+        $out .= implode('', $packet->head);  // head data (array of bytes)
+        $out .= $packet->body;  // body data (Protobuf serialized message)
+        $out .= pack('N', 0xD7A152C8);  // TAIL_MAGIC (u32)
+
+        return $out;
     }    
+
+    /**
+     * Stops the session and closes the connection.
+     */
+    public function stop()
+    {
+        Logger::log_gameserver("Closing session and connection.");
+        $this->connection->close();
+    }
 }

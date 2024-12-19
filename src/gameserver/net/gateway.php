@@ -11,23 +11,28 @@ class Connection
 {
     private $connection;
     private $clientAddr;
-    private $isGateway;
+    private $session;
 
-    public function __construct(ConnectionInterface $connection, $clientAddr, $isGateway = true)
+    public function __construct(ConnectionInterface $connection, $clientAddr)
     {
         $this->connection = $connection;
         $this->clientAddr = $clientAddr;
-        $this->isGateway = $isGateway;
+        $this->session = new PlayerSession($connection);
     }
 
     public function handle()
     {
-        $this->connection->on('data', function () {
-            Logger::log_gameserver("Received data from {$this->clientAddr}");
+        Logger::log_gameserver("Connection established with {$this->clientAddr}");
+
+        $this->connection->on('data', function ($data) {
+            $toHex = bin2hex($data);
+            Logger::log_gameserver("Received data from {$this->clientAddr}: {$toHex}");
+            $this->session->processRequest($data);
         });
 
         $this->connection->on('close', function () {
             Logger::log_gameserver("Connection closed with {$this->clientAddr}");
+            $this->session->stop();
         });
     }
 }
@@ -53,27 +58,16 @@ class Gateway
             $clientAddr = $connection->getRemoteAddress();
             Logger::log_gameserver("Accepted connection from {$clientAddr}");
 
-            $session = new PlayerSession($connection);
-
-            $this->registerHandlers($session);
-
-            $session->run();
-
-            $connection->on('close', function () use ($session) {
-                $session->stop();
-            });
+            $this->handleConnection($connection);
         });
 
         $loop->run();
     }
 
-    private function registerHandlers(PlayerSession $session): void
+    private function handleConnection(ConnectionInterface $connection)
     {
-        $session->registerHandler('CmdPlayerGetTokenCsReq', function (ConnectionInterface $socket, Message $request) use ($session) {
-   
-            $handler = new \VirusSR\gameserver\net\handlers\OnPlayerGetToken($session);
-            $handler->handle($socket, $request);
-        });
-    
+        $clientAddr = $connection->getRemoteAddress();
+        $conn = new Connection($connection, $clientAddr);
+        $conn->handle();
     }
 }

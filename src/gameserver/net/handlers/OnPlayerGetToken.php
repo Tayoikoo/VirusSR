@@ -3,6 +3,7 @@
 namespace VirusSR\gameserver\net\handlers;
 
 use Google\Protobuf\Internal\Message;
+use VirusSR\gameserver\net\cmd_id;
 use VirusSR\gameserver\net\PlayerSession;
 use React\Socket\ConnectionInterface;
 use PlayerGetTokenScRsp;
@@ -15,20 +16,12 @@ class OnPlayerGetToken
     {
         // Create the response message
         $response = new PlayerGetTokenScRsp();
-        $response->setUid(1010);
+        $response->setUid(69420);
         $response->setMsg("OK");
         $response->setRetcode(0);
 
-        // Get command ID for PlayerGetTokenScRsp
-        $cmdId = $this->session->getCommandIdFromName('CmdPlayerGetTokenScRsp'); // Ensure this method returns the correct cmdId
-
-        if ($cmdId === null) {
-            echo "Command ID not found for PlayerGetTokenScRsp\n";
-            return;
-        }
-
         // Send the response packet using PlayerSession's method
-        $this->session->sendPacket($socket, $cmdId, $response);
+        $this->session->sendPacket($socket, cmd_id::CMD_PLAYER_GET_TOKEN_SC_RSP, $response);
         // $this->session->sendDummy($cmdId);
     }
 }
