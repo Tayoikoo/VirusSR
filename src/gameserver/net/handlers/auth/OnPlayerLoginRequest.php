@@ -15,7 +15,6 @@ class OnPlayerLoginRequest
 
     public function handle(ConnectionInterface $socket, Message $request): void
     {
-        // Create PlayerBasicInfo response object (similar to the Rust struct)
         $basicInfo = new PlayerBasicInfo();
         $basicInfo->setNickname("PHP-SR");
         $basicInfo->setLevel(70);

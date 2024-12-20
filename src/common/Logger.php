@@ -50,38 +50,56 @@ class Logger
 
     public static function log(string $content): void
     {
-        self::send($content, self::GREEN . "[LOG]");
+        self::send($content, self::formatHeader(self::GREEN, "LOG"));
     }
 
     public static function log_dispatch(string $content): void
     {
-        self::send($content, self::GOLD . "[DISPATCH]");
+        self::send($content, self::formatHeader(self::GOLD, "DISPATCH"));
     }
+    
     public static function log_gameserver(string $content): void
     {
-        self::send($content, self::AQUA . "[GAMESERVER]");
+        self::send($content, self::formatHeader(self::AQUA, "GAMESERVER"));
     }
+    
     public static function log_packet(string $content): void
     {
-        self::send($content, self::YELLOW . "[PACKET]");
-    }    
-    public static function send(string $content, string $header): void
+        self::send($content, self::formatHeader(self::YELLOW, "PACKET"));
+    }
+    
+    public static function notice(string $content): void
+    {
+        self::send($content, self::formatHeader(self::YELLOW, "NOTICE"));
+    }
+    
+    public static function dummy(string $content): void
+    {
+        self::send($content, self::formatHeader(self::BLUE, "DUMMY"));
+    }
+    
+    public static function error(string $content): void
+    {
+        self::send($content, self::formatHeader(self::RED, "ERROR"));
+    }
+    
+    private static function send(string $content, string $header): void
     {
         echo $header . " " . self::RESET . $content . self::RESET . PHP_EOL;
     }
-
-    public static function notice(string $content): void
+    
+    /**
+     * Formats the header with the log type and calling file.
+     */
+    private static function formatHeader(string $color, string $type): string
     {
-        self::send($content, self::YELLOW . "[NOTICE]");
-    }
-
-    public static function dummy(string $content): void
-    {
-        self::send($content, self::BLUE . "[DUMMY]");
-    }    
-
-    public static function error(string $content): void
-    {
-        self::send($content, self::RED . "[ERROR]");
+        // Get the calling file from debug_backtrace
+        $backtrace = debug_backtrace();
+        $callerFilePath = $backtrace[2]['file'] ?? 'unknown';
+        $basePath = dirname(__DIR__, 2); // Adjust base path as needed to match your project structure
+        $relativePath = str_replace($basePath . DIRECTORY_SEPARATOR, '', $callerFilePath);
+        
+        // Return the formatted header
+        return $color . "[" . $type . " || " . $relativePath . "]" . self::RESET;
     }
 }

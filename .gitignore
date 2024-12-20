@@ -5,3 +5,4 @@ composer.lock
 data/aStarRail.proto
 data/aaStarRail.proto
 data/oldStarRail.proto
+data/cmd_id.php

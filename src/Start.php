@@ -14,7 +14,7 @@ require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
 function run(): void
 {
     Helpers::php_sr();
-    database::init();
+    //database::init();
     sleep(2);
     SdkServer::init();
     sleep(2);

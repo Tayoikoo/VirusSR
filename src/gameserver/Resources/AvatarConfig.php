@@ -41,6 +41,8 @@ class AvatarConfig
         $avatars = [];
 
         foreach ($this->avatars as $avatarId) {
+            if ($avatarId > 8000 || ($avatarId == 1001 || $avatarId == 1224)) continue;
+
             $avatars[] = [
                 'base_avatar_id' => $avatarId,
                 'promotion' => 6,
@@ -49,6 +51,25 @@ class AvatarConfig
                 'level' => 80,
             ];
         }
+
+        // MC
+        $avatars[] = [
+            'base_avatar_id' => 8001,
+            'promotion' => 6,
+            'rank' => 6,
+            'exp' => 0,
+            'level' => 80,
+        ];
+        
+        // March
+        $avatars[] = [
+            'base_avatar_id' => 1001,
+            'promotion' => 6,
+            'rank' => 6,
+            'exp' => 0,
+            'level' => 80,
+        ];        
+
 
         return $avatars;
     }

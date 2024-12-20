@@ -106,6 +106,10 @@ class PlayerSession
             'CmdGetMissionStatusCsReq' => new handlers\mission\OnGetMissionStatus($this),
             'CmdOnGetAvatarDataCsReq' => new handlers\avatar\OnGetAvatarData($this),
             'CmdGetMultiPathAvatarInfoCsReq' => new handlers\avatar\OnGetMultiPathAvatar($this),
+            'CmdGetBagCsReq' => new handlers\item\OnGetBag($this),
+            'CmdGetAllLineupDataCsReq' => new handlers\lineup\OnGetAllLineupData($this),
+            'CmdGetCurLineupDataCsReq' => new handlers\lineup\OnGetCurLineupData($this),
+            'CmdOnGetCurSceneInfoCsReq' => new handlers\scene\OnGetCurSceneInfo($this),
         ];
     }
 
@@ -182,10 +186,9 @@ class PlayerSession
             } else {
                 Logger::log_gameserver("Failed to decode Protobuf message.");
             }
-        } else {
-            $this->sendDummy($packet->cmd_type);
         }
     }
+    
     
     private function decodeProtobufMessage(NetPacket $packet)
     {
@@ -222,7 +225,23 @@ class PlayerSession
             case cmd_id::CMD_GET_MULTI_PATH_AVATAR_INFO_CS_REQ:
                 $message = new \GetMultiPathAvatarInfoCsReq();
                 $message->mergeFromString($packet->body);
-                return $message;                  
+                return $message;
+            case cmd_id::CMD_GET_BAG_CS_REQ:
+                $message = new \GetBagCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_ALL_LINEUP_DATA_CS_REQ:
+                $message = new \GetAllLineupDataCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_CUR_LINEUP_DATA_CS_REQ:
+                $message = new \GetCurLineupDataCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_CUR_SCENE_INFO_CS_REQ:
+                $message = new \GetCurSceneInfoCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
             default:
                 Logger::log_gameserver("No Protobuf message class found for cmd_type: {$packet->cmd_type}");
                 return null;
@@ -247,6 +266,10 @@ class PlayerSession
             cmd_id::CMD_GET_AVATAR_DATA_CS_REQ => 'CmdOnGetAvatarDataCsReq',
             cmd_id::CMD_GET_BASIC_INFO_CS_REQ => 'CmdGetBasicInfoCsReq',
             cmd_id::CMD_GET_MULTI_PATH_AVATAR_INFO_CS_REQ => 'CmdGetMultiPathAvatarInfoCsReq',
+            cmd_id::CMD_GET_BAG_CS_REQ => 'CmdGetBagCsReq',
+            cmd_id::CMD_GET_ALL_LINEUP_DATA_CS_REQ => 'CmdGetAllLineupDataCsReq',
+            cmd_id::CMD_GET_CUR_LINEUP_DATA_CS_REQ => 'CmdGetCurLineupDataCsReq',
+            cmd_id::CMD_GET_CUR_SCENE_INFO_CS_REQ => 'CmdOnGetCurSceneInfoCsReq',
         ];
     
         // Check if the cmd_type exists in the map
