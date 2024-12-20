@@ -67,10 +67,10 @@
             "customIfixVersion": 0
         },
         "CNBETAWin2.7.53": {
-            "asset_bundle_url": "https://autopatchcn.bhsr.com/asb/BetaLive/output_8919867_87f9299dafe0",
-            "ex_resource_url": "https://autopatchcn.bhsr.com/design_data/BetaLive/output_8919867_ffd2c55fc0dd",
-            "lua_url": "https://autopatchcn.bhsr.com/lua/BetaLive/output_8256066_d4950eb37f1e",
-            "ifixUrl": "https://autopatchcn.bhsr.com/lua/BetaLive/output_8880072_11cae8e8e678",
+            "asset_bundle_url": "",
+            "ex_resource_url": "",
+            "lua_url": "",
+            "ifixUrl": "",
             "lua_version": "8880072",
             "customMdkResVersion": 0,
             "customIfixVersion": 0

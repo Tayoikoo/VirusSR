@@ -75,9 +75,9 @@ class Logger
         self::send($content, self::YELLOW . "[NOTICE]");
     }
 
-    public static function missing(string $content): void
+    public static function dummy(string $content): void
     {
-        self::send($content, self::BLUE . "[MISSING]");
+        self::send($content, self::BLUE . "[DUMMY]");
     }    
 
     public static function error(string $content): void

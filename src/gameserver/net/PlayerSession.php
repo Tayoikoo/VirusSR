@@ -6,7 +6,6 @@ use React\Socket\ConnectionInterface;
 use Google\Protobuf\Internal\Message;
 use VirusSR\common\Logger;
 use VirusSR\gameserver\net\handlers\HandlerInterface;
-use VirusSR\gameserver\net\handlers;
 
 class NetPacket
 {
@@ -84,11 +83,13 @@ class PlayerSession
 {
     private $connection;
     private $handlers = [];
+    private $commandMap = [];
 
     public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
         $this->initializeHandlers();
+        $this->initializeCommandMap();
     }
 
     /**
@@ -97,9 +98,58 @@ class PlayerSession
     private function initializeHandlers()
     {
         $this->handlers = [
-            'CmdPlayerGetTokenCsReq' => new handlers\OnPlayerGetToken($this),
+            'CmdPlayerGetTokenCsReq' => new handlers\auth\OnPlayerGetToken($this),
+            'CmdPlayerLoginCsReq' => new handlers\auth\OnPlayerLoginRequest($this),
+            'CmdPlayerLoginFinishCsReq' => new handlers\auth\OnPlayerLoginFinish($this),
+            'CmdPlayerHeartBeatCsReq' => new handlers\player\OnPlayerHeartBeat($this),
+            'CmdGetBasicInfoCsReq' => new handlers\player\OnGetBasicInfo($this),
+            'CmdGetMissionStatusCsReq' => new handlers\mission\OnGetMissionStatus($this),
+            'CmdOnGetAvatarDataCsReq' => new handlers\avatar\OnGetAvatarData($this),
+            'CmdGetMultiPathAvatarInfoCsReq' => new handlers\avatar\OnGetMultiPathAvatar($this),
         ];
     }
+
+    /**
+     * Initialize the command map dynamically by reading constants from cmd_id class.
+     */
+    private function initializeCommandMap()
+    {
+        // Use ReflectionClass to get all constants from cmd_id class
+        $reflection = new \ReflectionClass(cmd_id::class);
+        $cmdConstants = $reflection->getConstants();
+
+        // Map the constant value to the command name
+        foreach ($cmdConstants as $name => $value) {
+            // Skip constants that are not command types
+            if (strpos($name, 'CMD_') === 0) {
+                $commandName = $this->convertConstantToCommandName($name);
+                $this->commandMap[$value] = $commandName;
+            }
+        }
+    }
+
+    /**
+     * Convert a constant name (e.g., CMD_PLAYER_HEART_BEAT_SC_RSP) to a command name
+     * (e.g., CmdPlayerHeartBeatScRsp).
+     */
+    private function convertConstantToCommandName($constantName)
+    {
+        // Remove the 'CMD_' prefix
+        $nameWithoutCmd = substr($constantName, 4);
+    
+        // Split the string by underscores
+        $parts = explode('_', $nameWithoutCmd);
+    
+        // Capitalize each part after the first
+        $commandName = ucfirst(strtolower($parts[0])); // First part in lowercase, then capitalize the rest
+        for ($i = 1; $i < count($parts); $i++) {
+            $commandName .= ucfirst(strtolower($parts[$i])); // Capitalize the rest
+        }
+    
+        return $commandName;
+    }
+    
+
 
     /**
      * Processes the incoming data and routes it to the appropriate handler.
@@ -133,7 +183,7 @@ class PlayerSession
                 Logger::log_gameserver("Failed to decode Protobuf message.");
             }
         } else {
-            Logger::log_gameserver("No handler found for command: {$command}");
+            $this->sendDummy($packet->cmd_type);
         }
     }
     
@@ -143,9 +193,36 @@ class PlayerSession
         switch ($packet->cmd_type) {
             case cmd_id::CMD_PLAYER_GET_TOKEN_CS_REQ:
                 $message = new \PlayerGetTokenCsReq();
-                $message->mergeFromString($packet->body);  // Assuming the body contains the serialized Protobuf message
+                $message->mergeFromString($packet->body);
                 return $message;
-            // Add other cases for different cmd_types here
+            case cmd_id::CMD_PLAYER_LOGIN_CS_REQ:
+                $message = new \PlayerLoginCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_PLAYER_LOGIN_FINISH_CS_REQ:
+                $message = new \PlayerLoginFinishCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_PLAYER_HEART_BEAT_CS_REQ:
+                $message = new \PlayerHeartBeatCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_MISSION_STATUS_CS_REQ:
+                $message = new \GetMissionStatusCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_AVATAR_DATA_CS_REQ:
+                $message = new \GetAvatarDataCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_BASIC_INFO_CS_REQ:
+                $message = new \GetBasicInfoCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_MULTI_PATH_AVATAR_INFO_CS_REQ:
+                $message = new \GetMultiPathAvatarInfoCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;                  
             default:
                 Logger::log_gameserver("No Protobuf message class found for cmd_type: {$packet->cmd_type}");
                 return null;
@@ -164,18 +241,42 @@ class PlayerSession
         $commandMap = [
             cmd_id::CMD_PLAYER_GET_TOKEN_CS_REQ => 'CmdPlayerGetTokenCsReq',
             cmd_id::CMD_PLAYER_LOGIN_CS_REQ => 'CmdPlayerLoginCsReq',
-            // Add more mappings as necessary
+            cmd_id::CMD_PLAYER_LOGIN_FINISH_CS_REQ => 'CmdPlayerLoginFinishCsReq',
+            cmd_id::CMD_PLAYER_HEART_BEAT_CS_REQ => 'CmdPlayerHeartBeatCsReq',
+            cmd_id::CMD_GET_MISSION_STATUS_CS_REQ => 'CmdGetMissionStatusCsReq',
+            cmd_id::CMD_GET_AVATAR_DATA_CS_REQ => 'CmdOnGetAvatarDataCsReq',
+            cmd_id::CMD_GET_BASIC_INFO_CS_REQ => 'CmdGetBasicInfoCsReq',
+            cmd_id::CMD_GET_MULTI_PATH_AVATAR_INFO_CS_REQ => 'CmdGetMultiPathAvatarInfoCsReq',
         ];
     
         // Check if the cmd_type exists in the map
         if (array_key_exists($packet->cmd_type, $commandMap)) {
             return $commandMap[$packet->cmd_type];  // Return the corresponding command name
         } else {
-            Logger::log_gameserver("No command found for cmd_type: {$packet->cmd_type}");
             return null;  // Default command when no match is found
         }
     }
     
+    /**
+     * Sends a dummy packet over the connection when no handler is found.
+     *
+     * @param int $cmd_type The command type.
+     * @return void
+     */
+    public function sendDummy($cmd_type)
+    {
+        $packetName = isset($this->commandMap[$cmd_type]) ? $this->commandMap[$cmd_type] : 'UnknownPacket';
+        // Create a dummy packet
+        $dummyPacket = new NetPacket($cmd_type, [], '');  // Empty head and body for the dummy packet
+
+        // Encode the packet into binary format
+        $packetBytes = $this->encodeNetPacket($dummyPacket);
+
+        // Send the dummy packet over the connection
+        $this->connection->write($packetBytes);
+
+        Logger::dummy("Send dummy {$packetName} cmd_type: {$cmd_type}.");
+    }    
 
     /**
      * Sends a packet over the connection.
@@ -187,14 +288,17 @@ class PlayerSession
      */
     public function sendPacket(ConnectionInterface $socket, $cmdId, Message $response)
     {
+        // Retrieve the packet name from the command map
+        $packetName = isset($this->commandMap[$cmdId]) ? $this->commandMap[$cmdId] : 'UnknownPacket';
+        
         // Create a NetPacket
-        $packet = new NetPacket($cmdId, [], $response->serializeToString());  // Correct instantiation of NetPacket
-    
+        $packet = new NetPacket($cmdId, [], $response->serializeToString());
+        
         // Send the packet (including header and body)
         $packetBytes = $this->encodeNetPacket($packet);
         $socket->write($packetBytes);
-    
-        Logger::log_gameserver("Sent packet with cmdId {$cmdId}.");
+        
+        Logger::log_packet("Sending packet: {$packetName} with cmdId {$cmdId}.");
     }
 
     /**

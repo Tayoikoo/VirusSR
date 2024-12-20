@@ -18,7 +18,6 @@ class Config {
 
     public static function load_config($file_path) {
         if (file_exists($file_path)) {
-            Logger::log_dispatch('Found Dispatch.json');
             $data = file_get_contents($file_path);
         } else {
             return Logger::error("Dispatch.json not found");

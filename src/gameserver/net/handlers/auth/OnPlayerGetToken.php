@@ -1,6 +1,6 @@
 <?php
 
-namespace VirusSR\gameserver\net\handlers;
+namespace VirusSR\gameserver\net\handlers\auth;
 
 use Google\Protobuf\Internal\Message;
 use VirusSR\gameserver\net\cmd_id;
@@ -16,7 +16,7 @@ class OnPlayerGetToken
     {
         // Create the response message
         $response = new PlayerGetTokenScRsp();
-        $response->setUid(69420);
+        $response->setUid(1010);
         $response->setMsg("OK");
         $response->setRetcode(0);
 

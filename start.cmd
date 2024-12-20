@@ -13,4 +13,7 @@ if "%PHP_BINARY%"=="" (
 	pause
 	exit 1
 )
+
+cls
+
 %PHP_BINARY% src/Start.php %* || pause

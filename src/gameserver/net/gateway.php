@@ -26,7 +26,7 @@ class Connection
 
         $this->connection->on('data', function ($data) {
             $toHex = bin2hex($data);
-            Logger::log_gameserver("Received data from {$this->clientAddr}: {$toHex}");
+            // Logger::log_gameserver("Received data from {$this->clientAddr}: {$toHex}");
             $this->session->processRequest($data);
         });
 
