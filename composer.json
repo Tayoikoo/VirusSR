@@ -17,11 +17,9 @@
     ],
     "require": {
         "google/protobuf": "^4.27",
-        "labalityowo/bytebuffer": "dev-stable",
         "nyholm/psr7": "^1.8",
         "guzzlehttp/psr7": "^2.7",
         "react/http": "1.9.0",
-        "mongodb/mongodb": "^1.19",
         "laminas/laminas-diactoros": "^3.3",
         "illuminate/database": "^10.48"
     }
