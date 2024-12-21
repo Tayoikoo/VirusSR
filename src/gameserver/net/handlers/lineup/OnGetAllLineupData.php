@@ -17,7 +17,7 @@ class OnGetAllLineupData
     {
         $rsp = new GetAllLineupDataScRsp();
    
-        $avatarIds = [8001,1308, 1402, 1001];
+        $avatarIds = [1308];
     
         $avatars = [];
         foreach ($avatarIds as $i => $id) {
@@ -39,7 +39,9 @@ class OnGetAllLineupData
         $lineupInfo = new \LineupInfo();
         $lineupInfo->setName("PHP-SR Team");
         $lineupInfo->setPlaneId(20101);
-        $lineupInfo->setAvatarList($avatars);        
+        $lineupInfo->setAvatarList($avatars);
+        $lineupInfo->setMP(5); 
+        $lineupInfo->setMaxMp(5);         
 
         $rsp->setLineupList([$lineupInfo]);
         $rsp->setRetcode(0);

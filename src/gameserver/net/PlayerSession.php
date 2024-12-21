@@ -110,6 +110,8 @@ class PlayerSession
             'CmdGetAllLineupDataCsReq' => new handlers\lineup\OnGetAllLineupData($this),
             'CmdGetCurLineupDataCsReq' => new handlers\lineup\OnGetCurLineupData($this),
             'CmdOnGetCurSceneInfoCsReq' => new handlers\scene\OnGetCurSceneInfo($this),
+            'CmdSceneEntityMoveCsReq' => new handlers\scene\OnSceneEntityMove($this),
+            'CmdGetSceneMapInfoCsReq' => new handlers\scene\OnGetSceneMapInfo($this),
         ];
     }
 
@@ -152,9 +154,40 @@ class PlayerSession
     
         return $commandName;
     }
+
+    /**
+     * Process incoming data from the connection and look for the tail magic.
+     *
+     * @param string $data The incoming binary data.
+     */
+    public function processIncomingData($data)
+    {
+        // Temporary buffer to hold data
+        static $buffer = '';
+
+        // Append the new data to the buffer
+        $buffer .= $data;
+
+        while (true) {
+            // Look for the tail magic (0xD7A152C8) in the buffer
+            $tail_magic_pos = strpos($buffer, pack('N', NetPacket::TAIL_MAGIC));
+
+            // If we found the tail magic and have a complete packet, process it
+            if ($tail_magic_pos !== false) {
+                $packet_data = substr($buffer, 0, $tail_magic_pos + 4); // Include the tail magic
+                
+                // Parse the packet and process it
+                $this->processRequest($packet_data);
+
+                // Remove the processed data from the buffer
+                $buffer = substr($buffer, $tail_magic_pos + 4);
+            } else {
+                // Not enough data for a complete packet, break the loop
+                break;
+            }
+        }
+    }  
     
-
-
     /**
      * Processes the incoming data and routes it to the appropriate handler.
      *
@@ -212,8 +245,13 @@ class PlayerSession
                 return $message;
             case cmd_id::CMD_GET_MISSION_STATUS_CS_REQ:
                 $message = new \GetMissionStatusCsReq();
-                $message->mergeFromString($packet->body);
-                return $message;
+                try {
+                    $message->mergeFromString($packet->body);
+                    return $message;
+                } catch (\Exception $e) {
+                    Logger::log_gameserver("Failed to parse Protobuf message for CMD_GET_MISSION_STATUS_CS_REQ: " . $e->getMessage());
+                    return null;
+                }
             case cmd_id::CMD_GET_AVATAR_DATA_CS_REQ:
                 $message = new \GetAvatarDataCsReq();
                 $message->mergeFromString($packet->body);
@@ -240,6 +278,14 @@ class PlayerSession
                 return $message;
             case cmd_id::CMD_GET_CUR_SCENE_INFO_CS_REQ:
                 $message = new \GetCurSceneInfoCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_SCENE_ENTITY_MOVE_CS_REQ:
+                $message = new \SceneEntityMoveCsReq();
+                $message->mergeFromString($packet->body);
+                return $message;
+            case cmd_id::CMD_GET_SCENE_MAP_INFO_CS_REQ:
+                $message = new \GetSceneMapInfoCsReq();
                 $message->mergeFromString($packet->body);
                 return $message;
             default:
@@ -270,6 +316,8 @@ class PlayerSession
             cmd_id::CMD_GET_ALL_LINEUP_DATA_CS_REQ => 'CmdGetAllLineupDataCsReq',
             cmd_id::CMD_GET_CUR_LINEUP_DATA_CS_REQ => 'CmdGetCurLineupDataCsReq',
             cmd_id::CMD_GET_CUR_SCENE_INFO_CS_REQ => 'CmdOnGetCurSceneInfoCsReq',
+            cmd_id::CMD_SCENE_ENTITY_MOVE_CS_REQ => 'CmdSceneEntityMoveCsReq',
+            cmd_id::CMD_GET_SCENE_MAP_INFO_CS_REQ => 'CmdGetSceneMapInfoCsReq',
         ];
     
         // Check if the cmd_type exists in the map

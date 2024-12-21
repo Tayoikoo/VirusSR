@@ -29,12 +29,13 @@ class OnGetMissionStatus
         foreach ($req->getSubMissionIdList() as $id) {
             $mission = new Mission();
             $mission->setId($id);
-            $mission->setProgress(1); // Setting progress to 1 (completed)
-            $mission->setStatus(MissionStatus::MISSION_FINISH); // Mission status to MISSION_FINISH
+            $mission->setProgress(1);
+            $mission->setStatus(MissionStatus::MISSION_FINISH);
             $subMissionStatusList[] = $mission;
         }
 
         $response->setSubMissionStatusList($subMissionStatusList);
+        $response->setRetcode(0);
 
         // Send the response packet using PlayerSession's method
         $this->session->sendPacket($socket, cmd_id::CMD_GET_MISSION_STATUS_SC_RSP, $response);

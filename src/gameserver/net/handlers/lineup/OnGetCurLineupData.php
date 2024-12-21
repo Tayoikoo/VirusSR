@@ -14,12 +14,8 @@ class OnGetCurLineupData
     public function handle(ConnectionInterface $socket, Message $request): void
     {
         $rsp = new \GetCurLineupDataScRsp();
-    
-        $lineupInfo = new \LineupInfo();
-        $lineupInfo->setName("PHP-SR Team");
-        $lineupInfo->setPlaneId(20101);
-    
-        $avatarIds = [8001,1308, 1402, 1001];
+   
+        $avatarIds = [1308];
     
         $avatars = [];
         foreach ($avatarIds as $i => $id) {
@@ -30,21 +26,28 @@ class OnGetCurLineupData
             $avatar->setSatiety(0);
     
             $sp = new \AmountInfo();
-            $sp->setCurAmount(0);
+            $sp->setCurAmount(10000);
             $sp->setMaxAmount(10000);
             $avatar->setSp($sp);
     
             $avatar->setAvatarType((int)\AvatarType::AVATAR_FORMAL_TYPE);
             $avatars[] = $avatar;
         }
+
+    
+        $lineupInfo = new \LineupInfo();
+        $lineupInfo->setName("PHP-SR Team");
+        $lineupInfo->setPlaneId(20101);        
     
         $lineupInfo->setAvatarList($avatars);
+        $lineupInfo->setMP(5); 
+        $lineupInfo->setMaxMp(5); 
     
         $rsp->setLineup($lineupInfo);
     
         $rsp->setRetcode(0);
     
-        $this->session->sendPacket($socket, cmd_id::CMD_GET_ALL_LINEUP_DATA_SC_RSP, $rsp);
+        $this->session->sendPacket($socket, cmd_id::CMD_GET_CUR_LINEUP_DATA_SC_RSP, $rsp);
     }
     
 }

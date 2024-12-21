@@ -71,9 +71,7 @@
             "ex_resource_url": "",
             "lua_url": "",
             "ifixUrl": "",
-            "lua_version": "8880072",
-            "customMdkResVersion": 0,
-            "customIfixVersion": 0
-        }           
+            "lua_version": ""
+        }
     }    
 }

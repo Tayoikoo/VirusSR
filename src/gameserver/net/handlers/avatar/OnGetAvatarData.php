@@ -58,6 +58,7 @@ class OnGetAvatarData
 
         // Set the avatar list in the response
         $response->setAvatarList($avatarList);
+        $response->setRetcode(0);
 
         $this->session->sendPacket($socket, cmd_id::CMD_GET_AVATAR_DATA_SC_RSP, $response);
     }

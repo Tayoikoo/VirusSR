@@ -19,14 +19,14 @@ class OnGetCurSceneInfo
         $motion = new \MotionInfo();
         $vector = new \Vector();
 
-        $avatarIds = [8001, 1308, 1402, 1001];
+        $avatarIds = [1308];
 
         $entity_actor = [];
         foreach ($avatarIds as $i => $id) {
             $actorInfo = new \SceneEntityInfo();
             $actorInfo->setInstId(0);
             $actorInfo->setGroupId(0);
-            $actorInfo->setEntityId($id);
+            $actorInfo->setEntityId((int)$i << 2);
             // MotionInfo
             $vector->setX(4480);
             $vector->setY(19364);
@@ -71,11 +71,8 @@ class OnGetCurSceneInfo
         $sceneInfo->setSceneGroupList($SceneGroupList);
         $sceneInfo->setLeaderEntityId($leaderEntityId);
 
-        $rsp->setScene($sceneInfo);
         $rsp->setRetcode(0);
-
-        Logger::log_packet("Leader Entity ID: $leaderEntityId");
-
+        $rsp->setScene($sceneInfo);
 
         $this->session->sendPacket($socket, cmd_id::CMD_GET_CUR_SCENE_INFO_SC_RSP, $rsp);
     }

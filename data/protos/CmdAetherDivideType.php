@@ -4,8 +4,6 @@
 # source: StarRail.proto
 
 /**
- * NBIBIGCACMG
- *
  * Protobuf type <code>CmdAetherDivideType</code>
  */
 class CmdAetherDivideType
@@ -15,141 +13,141 @@ class CmdAetherDivideType
      */
     const CmdAetherDivideTypeNone = 0;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideSpiritExpUpCsReq = 4859;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideSpiritExpUpCsReq = 4822;</code>
      */
-    const CmdAetherDivideSpiritExpUpCsReq = 4859;
+    const CmdAetherDivideSpiritExpUpCsReq = 4822;
     /**
-     * Generated from protobuf enum <code>CmdSwitchAetherDivideLineUpSlotCsReq = 4826;</code>
+     * Generated from protobuf enum <code>CmdSwitchAetherDivideLineUpSlotCsReq = 4811;</code>
      */
-    const CmdSwitchAetherDivideLineUpSlotCsReq = 4826;
+    const CmdSwitchAetherDivideLineUpSlotCsReq = 4811;
     /**
-     * Generated from protobuf enum <code>CmdGetAetherDivideInfoCsReq = 4834;</code>
+     * Generated from protobuf enum <code>CmdGetAetherDivideInfoCsReq = 4845;</code>
      */
-    const CmdGetAetherDivideInfoCsReq = 4834;
+    const CmdGetAetherDivideInfoCsReq = 4845;
     /**
-     * Generated from protobuf enum <code>CmdGetAetherDivideChallengeInfoCsReq = 4829;</code>
+     * Generated from protobuf enum <code>CmdGetAetherDivideChallengeInfoCsReq = 4805;</code>
      */
-    const CmdGetAetherDivideChallengeInfoCsReq = 4829;
+    const CmdGetAetherDivideChallengeInfoCsReq = 4805;
     /**
-     * Generated from protobuf enum <code>CmdEnterAetherDivideSceneScRsp = 4895;</code>
+     * Generated from protobuf enum <code>CmdEnterAetherDivideSceneScRsp = 4850;</code>
      */
-    const CmdEnterAetherDivideSceneScRsp = 4895;
+    const CmdEnterAetherDivideSceneScRsp = 4850;
     /**
-     * Generated from protobuf enum <code>CmdSetAetherDivideLineUpCsReq = 4846;</code>
+     * Generated from protobuf enum <code>CmdSetAetherDivideLineUpCsReq = 4810;</code>
      */
-    const CmdSetAetherDivideLineUpCsReq = 4846;
+    const CmdSetAetherDivideLineUpCsReq = 4810;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideSpiritExpUpScRsp = 4812;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideSpiritExpUpScRsp = 4814;</code>
      */
-    const CmdAetherDivideSpiritExpUpScRsp = 4812;
+    const CmdAetherDivideSpiritExpUpScRsp = 4814;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideSkillItemScNotify = 4858;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideSkillItemScNotify = 4825;</code>
      */
-    const CmdAetherDivideSkillItemScNotify = 4858;
+    const CmdAetherDivideSkillItemScNotify = 4825;
     /**
-     * Generated from protobuf enum <code>CmdLeaveAetherDivideSceneScRsp = 4827;</code>
+     * Generated from protobuf enum <code>CmdLeaveAetherDivideSceneScRsp = 4823;</code>
      */
-    const CmdLeaveAetherDivideSceneScRsp = 4827;
+    const CmdLeaveAetherDivideSceneScRsp = 4823;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessCsReq = 4835;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessCsReq = 4834;</code>
      */
-    const CmdAetherDivideRefreshEndlessCsReq = 4835;
+    const CmdAetherDivideRefreshEndlessCsReq = 4834;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideSpiritInfoScNotify = 4878;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideSpiritInfoScNotify = 4842;</code>
      */
-    const CmdAetherDivideSpiritInfoScNotify = 4878;
+    const CmdAetherDivideSpiritInfoScNotify = 4842;
     /**
-     * Generated from protobuf enum <code>CmdEquipAetherDividePassiveSkillCsReq = 4896;</code>
+     * Generated from protobuf enum <code>CmdEquipAetherDividePassiveSkillCsReq = 4813;</code>
      */
-    const CmdEquipAetherDividePassiveSkillCsReq = 4896;
+    const CmdEquipAetherDividePassiveSkillCsReq = 4813;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideChallengeBattleCsReq = 4852;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideChallengeBattleCsReq = 4809;</code>
      */
-    const CmdStartAetherDivideChallengeBattleCsReq = 4852;
+    const CmdStartAetherDivideChallengeBattleCsReq = 4809;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideStageBattleCsReq = 4853;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideStageBattleCsReq = 4835;</code>
      */
-    const CmdStartAetherDivideStageBattleCsReq = 4853;
+    const CmdStartAetherDivideStageBattleCsReq = 4835;
     /**
-     * Generated from protobuf enum <code>CmdGetAetherDivideChallengeInfoScRsp = 4850;</code>
+     * Generated from protobuf enum <code>CmdGetAetherDivideChallengeInfoScRsp = 4824;</code>
      */
-    const CmdGetAetherDivideChallengeInfoScRsp = 4850;
+    const CmdGetAetherDivideChallengeInfoScRsp = 4824;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessScNotify = 4817;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessScNotify = 4837;</code>
      */
-    const CmdAetherDivideRefreshEndlessScNotify = 4817;
+    const CmdAetherDivideRefreshEndlessScNotify = 4837;
     /**
-     * Generated from protobuf enum <code>CmdClearAetherDividePassiveSkillCsReq = 4875;</code>
+     * Generated from protobuf enum <code>CmdClearAetherDividePassiveSkillCsReq = 4804;</code>
      */
-    const CmdClearAetherDividePassiveSkillCsReq = 4875;
+    const CmdClearAetherDividePassiveSkillCsReq = 4804;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideSceneBattleScRsp = 4828;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideSceneBattleScRsp = 4849;</code>
      */
-    const CmdStartAetherDivideSceneBattleScRsp = 4828;
+    const CmdStartAetherDivideSceneBattleScRsp = 4849;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideTainerInfoScNotify = 4888;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideTainerInfoScNotify = 4829;</code>
      */
-    const CmdAetherDivideTainerInfoScNotify = 4888;
+    const CmdAetherDivideTainerInfoScNotify = 4829;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideFinishChallengeScNotify = 4848;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideFinishChallengeScNotify = 4820;</code>
      */
-    const CmdAetherDivideFinishChallengeScNotify = 4848;
+    const CmdAetherDivideFinishChallengeScNotify = 4820;
     /**
-     * Generated from protobuf enum <code>CmdClearAetherDividePassiveSkillScRsp = 4819;</code>
+     * Generated from protobuf enum <code>CmdClearAetherDividePassiveSkillScRsp = 4840;</code>
      */
-    const CmdClearAetherDividePassiveSkillScRsp = 4819;
+    const CmdClearAetherDividePassiveSkillScRsp = 4840;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessScRsp = 4873;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideRefreshEndlessScRsp = 4819;</code>
      */
-    const CmdAetherDivideRefreshEndlessScRsp = 4873;
+    const CmdAetherDivideRefreshEndlessScRsp = 4819;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideTakeChallengeRewardCsReq = 4813;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideTakeChallengeRewardCsReq = 4838;</code>
      */
-    const CmdAetherDivideTakeChallengeRewardCsReq = 4813;
+    const CmdAetherDivideTakeChallengeRewardCsReq = 4838;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideLineupScNotify = 4876;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideLineupScNotify = 4844;</code>
      */
-    const CmdAetherDivideLineupScNotify = 4876;
+    const CmdAetherDivideLineupScNotify = 4844;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideSceneBattleCsReq = 4867;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideSceneBattleCsReq = 4815;</code>
      */
-    const CmdStartAetherDivideSceneBattleCsReq = 4867;
+    const CmdStartAetherDivideSceneBattleCsReq = 4815;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideChallengeBattleScRsp = 4874;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideChallengeBattleScRsp = 4843;</code>
      */
-    const CmdStartAetherDivideChallengeBattleScRsp = 4874;
+    const CmdStartAetherDivideChallengeBattleScRsp = 4843;
     /**
-     * Generated from protobuf enum <code>CmdLeaveAetherDivideSceneCsReq = 4884;</code>
+     * Generated from protobuf enum <code>CmdLeaveAetherDivideSceneCsReq = 4830;</code>
      */
-    const CmdLeaveAetherDivideSceneCsReq = 4884;
+    const CmdLeaveAetherDivideSceneCsReq = 4830;
     /**
-     * Generated from protobuf enum <code>CmdSetAetherDivideLineUpScRsp = 4825;</code>
+     * Generated from protobuf enum <code>CmdSetAetherDivideLineUpScRsp = 4848;</code>
      */
-    const CmdSetAetherDivideLineUpScRsp = 4825;
+    const CmdSetAetherDivideLineUpScRsp = 4848;
     /**
-     * Generated from protobuf enum <code>CmdAetherDivideTakeChallengeRewardScRsp = 4821;</code>
+     * Generated from protobuf enum <code>CmdAetherDivideTakeChallengeRewardScRsp = 4833;</code>
      */
-    const CmdAetherDivideTakeChallengeRewardScRsp = 4821;
+    const CmdAetherDivideTakeChallengeRewardScRsp = 4833;
     /**
-     * Generated from protobuf enum <code>CmdSwitchAetherDivideLineUpSlotScRsp = 4807;</code>
+     * Generated from protobuf enum <code>CmdSwitchAetherDivideLineUpSlotScRsp = 4806;</code>
      */
-    const CmdSwitchAetherDivideLineUpSlotScRsp = 4807;
+    const CmdSwitchAetherDivideLineUpSlotScRsp = 4806;
     /**
-     * Generated from protobuf enum <code>CmdGetAetherDivideInfoScRsp = 4843;</code>
+     * Generated from protobuf enum <code>CmdGetAetherDivideInfoScRsp = 4828;</code>
      */
-    const CmdGetAetherDivideInfoScRsp = 4843;
+    const CmdGetAetherDivideInfoScRsp = 4828;
     /**
-     * Generated from protobuf enum <code>CmdEquipAetherDividePassiveSkillScRsp = 4805;</code>
+     * Generated from protobuf enum <code>CmdEquipAetherDividePassiveSkillScRsp = 4817;</code>
      */
-    const CmdEquipAetherDividePassiveSkillScRsp = 4805;
+    const CmdEquipAetherDividePassiveSkillScRsp = 4817;
     /**
-     * Generated from protobuf enum <code>CmdStartAetherDivideStageBattleScRsp = 4890;</code>
+     * Generated from protobuf enum <code>CmdStartAetherDivideStageBattleScRsp = 4818;</code>
      */
-    const CmdStartAetherDivideStageBattleScRsp = 4890;
+    const CmdStartAetherDivideStageBattleScRsp = 4818;
     /**
-     * Generated from protobuf enum <code>CmdEnterAetherDivideSceneCsReq = 4836;</code>
+     * Generated from protobuf enum <code>CmdEnterAetherDivideSceneCsReq = 4812;</code>
      */
-    const CmdEnterAetherDivideSceneCsReq = 4836;
+    const CmdEnterAetherDivideSceneCsReq = 4812;
 
     private static $valueToName = [
         self::CmdAetherDivideTypeNone => 'CmdAetherDivideTypeNone',
